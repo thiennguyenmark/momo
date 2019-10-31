@@ -1,24 +1,25 @@
 module MomoPay
   class Signature
 
-    HMAC_KEYS = %W(partnerCode accessKey requestId orderId requestType)
-
-    def initialize(data)
-      @data = data
+    def self.verify!(data)
+      momo_signature = self.new(data, MomoPay.setup.signature_verify_keys).to_s
+      data_signature = data['signature'] || data[:signature]
+      if momo_signature != data_signature
+        raise MomoPay::SignatureError.new("#{momo_signature} vs #{data_signature}")
+      end
     end
 
-    def hmac
-      digest = OpenSSL::Digest.new('sha256')
-      OpenSSL::HMAC.digest(digest, MomoPay.setup.public_key, hmac_query)
+    def initialize(data, keys)
+      @query_string = MomoPay::QueryString.new(data).to_s(keys)
+    end
+
+    def to_s
+      OpenSSL::HMAC.hexdigest("SHA256", MomoPay.setup.secret_key, query_string)
     end
 
     private
 
-    attr_reader :data
-
-    def hmac_query
-      HMAC_KEYS.map { |key| [key, data[key] || data[key.to_sym]].join('=') }.join('&')
-    end
+    attr_reader :query_string
 
   end
 end

@@ -1,7 +1,7 @@
 module MomoPay
   class Rsa
 
-    SKIP_KEYS = %W(appData)
+    SKIP_KEYS = %w(appData)
 
     def initialize(data)
       @data = data

@@ -5,13 +5,16 @@ require 'json'
 
 require "momo_pay/version"
 require "momo_pay/config"
+require "momo_pay/default"
 require "momo_pay/error"
 require "momo_pay/http"
 require "momo_pay/mobile"
 require "momo_pay/query_status"
+require "momo_pay/query_string"
 require "momo_pay/request"
 require "momo_pay/rsa"
 require "momo_pay/signature"
+require "momo_pay/transaction"
 
 module MomoPay
 
