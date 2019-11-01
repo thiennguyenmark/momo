@@ -1,8 +1,5 @@
-# MomoPay
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/momo_pay`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+# API Caller for https://momo.vn
+- API documentation: https://developers.momo.vn
 
 ## Installation
 
@@ -21,23 +18,50 @@ Or install it yourself as:
     $ gem install momo_pay
 
 ## Usage
+#### Setup:
+Add `config/initializers/momo.rb` file with content
+```ruby
+MomoPay.setup do |config|
+  config.domain = Rails.application.secrets.momo_domain
+  config.public_key = Rails.application.secrets.momo_public_key
+  config.secret_key = Rails.application.secrets.momo_secret_key
+  config.partner_code = Rails.application.secrets.momo_partner_code
+  config.partner_name = Rails.application.secrets.momo_partner_name
+end
+```
+#### 1. App-In-App:
+**Request to process transaction:** [detail from Momo](https://developers.momo.vn/#/docs/app_in_app?id=x%e1%bb%ad-l%c3%bd-thanh-to%c3%a1n)
+```ruby
+    response = MomoPay::Mobile.process(
+      partnerRefId: order_number,
+      amount: order_value,
+      appData: momo_token_from_app,
+      customerNumber: momo_phone_from_app
+    )
+```
+=> Example response data
+```ruby
+     {
+       "status"=>0,
+       "message"=>"Thành công",
+       "amount"=>100000,
+       "transid"=>"230.....289",
+       "feeMoMo"=>0,
+       "signature"=>"2ab844bc9ae52.....0d04d85aef836e9"
+     }
+```
+- How to verify response by HMAC-SHA256
+```ruby
+    MomoPay::Signature.verify!(response)
+```
+It will raise `MomoPay::SignatureError` exception when response data is not verified!
 
-TODO: Write usage instructions here
+**Request to confirm transaction:** [detail from Momo](https://developers.momo.vn/#/docs/app_in_app?id=x%c3%a1c-nh%e1%ba%adn-giao-d%e1%bb%8bch)
+```ruby
+    response = MomoPay::Transaction.confirm(
+      partnerRefId: order_number,
+      momoTransId: transid_from_process_output,
+    )
+```
 
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/momo_pay. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the MomoPay project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/momo_pay/blob/master/CODE_OF_CONDUCT.md).
+### To be continued...
