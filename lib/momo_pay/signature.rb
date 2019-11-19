@@ -1,11 +1,11 @@
 module MomoPay
   class Signature
 
-    def self.verify!(data)
-      momo_signature = self.new(data, MomoPay.setup.signature_verify_keys).to_s
+    def self.verify!(data, type)
+      momo_signature = self.new(data, MomoPay.setup.get_verify_keys!(type)).to_s
       data_signature = data['signature'] || data[:signature]
       if momo_signature != data_signature
-        raise MomoPay::SignatureError.new("#{momo_signature} vs #{data_signature}")
+        raise MomoPay::SignatureError, "Gem:#{momo_signature || 'nil'} vs Data:#{data_signature || 'nil'}"
       end
     end
 
