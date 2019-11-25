@@ -2,6 +2,7 @@ require "http"
 require 'openssl'
 require 'base64'
 require 'json'
+require 'securerandom'
 
 require "momo_pay/version"
 require "momo_pay/config"

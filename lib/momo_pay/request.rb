@@ -10,5 +10,9 @@ module MomoPay
       response.parse
     end
 
+    def self.random_id
+      "#{Time.now.strftime("%Y%m%d%H%M%S")}#{SecureRandom.hex(2)}"
+    end
+
   end
 end
